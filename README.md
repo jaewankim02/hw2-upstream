@@ -1,7 +1,7 @@
 CS 152, Spring 2022
 Homework #2
 
-This directory contains the files for Homework #2.
+This directory contains the files for Homework #2. 
 
 Makefile: file to be used with make.  Run:
   make student_test_homework2 - to compile your code and generate an executable for your tests
