@@ -1,3 +1,13 @@
+/*
+ * Homework #2 
+ *
+ * Name: Jaewan Kim
+ *
+ * Sources used: None
+ *
+ * People consulted: None
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
@@ -15,8 +25,14 @@
 void flip(int *a, int len) {
     assert(a != NULL);
     assert(len > 0);
+    int b[len];
+    for (int i=0; i< len; i++) {
+        b[i] = a[i];
+    }
+    for (int i=0; i< len; i++) {
+        a[i] = b[len-i-1];
+    }
 
-    // YOUR CODE HERE
     return;
 }
 
@@ -32,8 +48,14 @@ void flip(int *a, int len) {
 void shift(int *a, int len) {
     assert(a != NULL);
     assert(len > 0);
+    int last = a[len-1];
 
-    // YOUR CODE HERE
+    for (int i=len-1; i>0; i--){
+        a[i] = a[i-1];
+    }
+
+    a[0]=last;
+    
     return;
 }
 
@@ -50,10 +72,28 @@ void shift(int *a, int len) {
 char *first_letter(char *sentence, int *num_words) {
     assert(sentence != NULL);
     assert(num_words != NULL);
+    *num_words = 1;
+    for (int i=0; sentence[i] != '\0'; i++){
+        if(sentence[i] == ' '){
+            *num_words += 1;
+        }
+    }
+    char *ret = (char *) calloc(sizeof(char), *num_words);
+    if (ret == NULL) {
+        fprintf(stderr, "Ran out of space in some function \n");
+        exit(1);
+    }
 
-    // YOUR CODE HERE
-    // Replace NULL with an appropriate return value
-    return NULL;
+    int j = 1;
+    ret[0]=sentence[0];
+    for (int i=0; sentence[i] != '\0'; i++){
+        if(sentence[i] == ' '){
+            ret[j]=sentence[i+1];
+            j++;
+        }
+    }
+    
+    return ret;
 }
 
 /* Exercise 4
@@ -73,8 +113,22 @@ void count_zeros_and_runs(int *a, int len, int *num_zeros, int *num_runs) {
     assert(len > 0);
     assert(num_zeros != NULL);
     assert(num_runs != NULL);
+    *num_zeros =0;
+    *num_runs=0;
 
-    // YOUR CODE HERE
+    for (int i=1; i<len; i++){
+        if (a[i]==0){
+            *num_zeros +=1;
+            if(a[i-1]!=0){
+                *num_runs +=1;
+            }
+        }
+    }
+    
+    if(a[0]==0){
+        *num_zeros +=1;
+        *num_runs +=1;
+    }
     return;
 }
 
@@ -92,10 +146,14 @@ void count_zeros_and_runs(int *a, int len, int *num_zeros, int *num_runs) {
 bool saves_space(int *a, int len) {
     assert(a != NULL);
     assert(len > 0);
+    int zeros=0;
+    int runs=0;
 
-    // YOUR CODE HERE
-    // Replace false with an appropriate return value
-    return false;
+    count_zeros_and_runs(a, len, &zeros, &runs);
+
+    bool ret = ((double) zeros / runs) > 2;
+    
+    return ret;
 }
 
 /* Exercise 6
@@ -113,9 +171,47 @@ int *encode(int *a, int len, int *encoded_len) {
     assert(len > 0);
     assert(encoded_len != NULL);
 
-    // YOUR CODE HERE
-    // Replace NULL with an appropriate return value
-    return NULL;
+    int zero=0;
+    int run=0;
+    count_zeros_and_runs(a, len, &zero, &run);
+    
+    *encoded_len = len - zero + (run * 2);
+    int *encoded = (int *) calloc (sizeof(int), *encoded_len);
+    if (encoded == NULL) {
+        fprintf(stderr, "Ran out of space in encoded_len \n");
+        exit(1);
+    }
+
+    int count=0;
+    int ind = 0;
+    int i =0;
+    if(a[0]==0){
+        for(int j=0; a[i+j] == 0 && (i+j)<len; j++){
+            count++;
+        }
+        encoded[ind]=0;
+        ind++;
+        encoded[ind]=count;
+        ind++;
+        i += count;
+        count=0;
+    }
+    for (; i<len; i++){
+        if((a[i]==0) && (a[i-1] != 0)){
+            for(int j=0; a[i+j] == 0 && (i+j)<len; j++){
+                count++;
+            }
+            encoded[ind]=0;
+            ind++;
+            encoded[ind]=count;
+            ind++;
+            count=0;
+        }else if(a[i]!=0){
+            encoded[ind] = a[i];
+            ind++;
+        }
+    }
+    return encoded;
 }
 
 /* Exercise 7
@@ -133,7 +229,32 @@ int *decode(int *a, int len, int *decoded_len) {
     assert(len > 0);
     assert(decoded_len != NULL);
 
-    // YOUR CODE HERE
-    // Replace NULL with an appropriate return value
-    return NULL;
+    int num_zero=0;
+    int num_run=0;
+    for (int i =0; i<len; i++){
+        if (a[i]==0){
+            num_zero += a[i+1];
+            num_run ++;
+        }
+    }
+
+    *decoded_len = len + num_zero - (num_run * 2);
+    int *decoded = (int *) calloc (sizeof(int), *decoded_len);
+    if (decoded == NULL) {  
+        fprintf(stderr, "Ran out of space in decoded_len \n");
+        exit(1);
+    }
+    int ind =0;
+    for (int i=0; i<len; i++){
+        if(a[i]==0){
+            for (int j=0; j<a[i+1];j++){
+                decoded[ind]=0;
+                ind++;
+            }
+            i++;
+        }else{
+         decoded[ind]=a[i];
+         ind++;}
+    }
+    return decoded;
 }
